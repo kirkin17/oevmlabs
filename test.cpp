@@ -3,12 +3,12 @@
 #include <string>
 #include <vector>
 #include <math.h>
-using namespace std;
+#include <windows.h>
 
 union longdouble
 {
 	long double ld;
-	__int128_t ldint;
+	unsigned long long int ldint;
 };
 
 void tobinary(char data)
@@ -30,12 +30,22 @@ void output(__int128_t value)
 	}
 }
 
+void SetWindow(short x1, short y1, short x2, short y2) 
+{
+	short width = x2 - x1;
+	short height = y2 - y1;
+    COORD bufferSize = {width, height};
+    SMALL_RECT windowSize = {0, 0, width - 1, height - 1};
+
+	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleWindowInfo(hStdOut, TRUE, &windowSize);
+	SetConsoleScreenBufferSize(hStdOut, bufferSize);
+}
+
 
 int main()
 {
 	longdouble data;
-	data.ldint = 1;
-	output(data.ldint << 75); cout << endl;
-	__int128_t aa = data.ldint << 75;
-	output(aa);
+	SetWindow(20, 15, 60, 20);
+	std::cout << "1";
 }
