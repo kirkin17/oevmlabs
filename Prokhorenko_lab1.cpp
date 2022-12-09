@@ -180,14 +180,14 @@ longdouble swap_bits(longdouble data, int i, int j)
     return data;
 }
 
-void reversepairs(short data)
+short reversepairs(short data)
 {
 	char s;
 	string result;
 	do
 	{
 		s = _getch();
-		if (/*!(result.length() == 8) &&*/ s >= '0' && s <= '9')
+		if (s >= '0' && s <= '9')
 		{
 			std::cout << s;
 			result.push_back(s);
@@ -229,19 +229,17 @@ void reversepairs(short data)
 	{
 		data = swap_bits(data, vresult[i], vresult[i+1]);
 	}
-
-	std::cout << std::endl << "binary: ";
-	output(data); std::cout << std::endl;
+	return data;
 }
 
-void reversepairs(longdouble data)
+longdouble reversepairs(longdouble data)
 {
 	char s;
 	string result;
 	do
 	{
 		s = _getch();
-		if (/*!(result.length() == 8) &&*/ s >= '0' && s <= '9')
+		if (s >= '0' && s <= '9')
 		{
 			std::cout << s;
 			result.push_back(s);
@@ -283,9 +281,7 @@ void reversepairs(longdouble data)
 	{
 		data = swap_bits(data, vresult[i], vresult[i+1]);
 	}
-
-	std::cout << std::endl << "binary: ";
-	output(data.ldint); std::cout << std::endl;
+	return data;
 }
 
 int main()
@@ -308,7 +304,10 @@ int main()
 			output(data);
 			std::cout << std::endl;
 			std::cout << "enter the number of bit pairs to be changed: ";
-			reversepairs(data);
+			short reversedBits = reversepairs(data);
+			std::cout << "\n\ndecimal: " << reversedBits << std::endl;
+			std::cout << "binary: ";
+			output(reversedBits); std::cout << std::endl << std::endl;
 		}
 		if(menu == '2')
 		{
@@ -320,7 +319,10 @@ int main()
 			output(data.ldint);
 			std::cout << endl;
 			std::cout << "enter the number of bit pairs to be changed: ";
-			reversepairs(data);
+			longdouble reversedBits = reversepairs(data);
+			std::cout << "\n\ndecimal: " << reversedBits.ld << std::endl;
+			std::cout << "binary: ";
+			output(reversedBits.ldint); std::cout << std::endl << std::endl;
 		}
 	}
 	while (menu != '0');

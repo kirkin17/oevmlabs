@@ -11,6 +11,11 @@ union longdouble
 	__int128_t ldint;
 };
 
+inline void clearbuffer()
+{
+	while(kbhit()) getch();
+}
+
 void tobinary(char data)
 {
 	unsigned char mask;
@@ -22,17 +27,13 @@ void tobinary(char data)
 	std::cout << " ";
 }
 
-void output(short data)
+template <class typeOfData>
+void output(typeOfData data)
 {
-	for (short i = sizeof(data); i != 0; i--)
-	{
-		tobinary(data >> (8 * (i - 1)));
-	}
-}
-
-void output(__int128_t data)
-{
-	for (short i = sizeof(data) - 6; i != 0; i--)
+    short size = 0;
+    if(sizeof(data) == 16) size = 10;
+    if(sizeof(data) == 2) size = 2;
+	for (short i = size; i != 0; i--)
 	{
 		tobinary(data >> (8 * (i - 1)));
 	}
@@ -50,6 +51,7 @@ long double input(long double data)
 	string result;
 	do
 	{
+		clearbuffer();
 		s = _getch();
 		if (range(s))
 		{
@@ -112,6 +114,7 @@ short input(short data)
 	string result;
 	do
 	{
+		while(kbhit()) getch();
 		s = _getch();
 		if (range(s))
 		{
@@ -155,40 +158,30 @@ short input(short data)
 	return ans*sign;
 }
 
-int swap_bits(int data, int i, int j)
+template <class typeOfData>
+typeOfData swap_bits(typeOfData data, int i, int j)
 {
-    bool biti = data & (1 << i);
-    bool bitj = data & (1 << j);
+    bool biti = data & ((typeOfData)1 << i);
+    bool bitj = data & ((typeOfData)1 << j);
     if (biti != bitj)
     {
-        int bit_mask = (1 << i) | (1 << j);
+        typeOfData bit_mask = ((typeOfData)1 << i) | ((typeOfData)1 << j);
         data ^= bit_mask;
         return data;
     }
     return data;
 }
 
-longdouble swap_bits(longdouble data, int i, int j)
-{
-	bool biti = data.ldint & ((__int128_t)1 << i);
-    bool bitj = data.ldint & ((__int128_t)1 << j);
-    if (biti != bitj)
-    {
-        __int128_t bit_mask = ((__int128_t)1 << i) | ((__int128_t)1 << j);
-        data.ldint ^= bit_mask;
-        return data;
-    }
-    return data;
-}
-
-short reversepairs(short data)
+template <class typeOfData>
+typeOfData reversepairs(typeOfData data)
 {
 	char s;
 	string result;
 	do
 	{
+		while(kbhit()) getch();
 		s = _getch();
-		if (/*!(result.length() == 8) &&*/ s >= '0' && s <= '9')
+		if (s >= '0' && s <= '9')
 		{
 			std::cout << s;
 			result.push_back(s);
@@ -227,58 +220,6 @@ short reversepairs(short data)
 	}
 
 	for(int i = 0; i < result.size(); i+=2)
-	{
-		data = swap_bits(data, vresult[i], vresult[i+1]);
-	}
-	return data;
-}
-
-longdouble reversepairs(longdouble data)
-{
-	char s;
-	string result;
-	do
-	{
-		s = _getch();
-		if (/*!(result.length() == 8) &&*/ s >= '0' && s <= '9')
-		{
-			std::cout << s;
-			result.push_back(s);
-		}
-		else if (s == 8)
-		{
-			if (!result.empty())
-			{
-				result.pop_back();
-				std::cout << "\b \b";
-			}
-		}
-		else if (s == 32)
-		{
-			if(!result.empty())
-			{
-				result.push_back(s);
-				std::cout << " ";
-			}
-		}
-	} while (s != 13);
-
-	vector <int> vresult;
-	int value = 0;
-	for(int i = 0; i < result.size(); i++)
-	{
-		if(result[i] != char(32))
-		{
-			value = value * 10 + (result[i] - '0');
-		}
-		if(result[i] == char(32) || i == result.size() - 1)
-		{
-			vresult.push_back(value);
-			value = 0;
-		}
-	}
-
-	for(int i = 0; i < vresult.size(); i += 2)
 	{
 		data = swap_bits(data, vresult[i], vresult[i+1]);
 	}
@@ -361,8 +302,8 @@ void printColor(char color)
     }
 }
 
-template <class data>
-void colorizedOutput(data changedData)
+template <class typeOfData>
+void colorizedOutput(typeOfData changedData)
 {
 	HANDLE hStdOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO startConsoleInfo;
@@ -376,12 +317,12 @@ void colorizedOutput(data changedData)
 		Sleep(900);
 		COORD cursor = {0, 4};
 		SetConsoleCursorPosition(hStdOut, cursor);
-		if(_kbhit()) {getch(); break;}
+		if(_kbhit()) {clearbuffer(); break;}
 	}
 }
 
-template <class data>
-void lab2(data changedData)
+template <class typeOfData>
+void lab2(typeOfData changedData)
 {
 	setlocale(LC_ALL, "Russian");
 	std::cout << "lab2? Y/N";
@@ -399,8 +340,7 @@ void lab2(data changedData)
 
 int main()
 {
-	
-    int menu;
+	int menu;
 	do
 	{
 		system("cls");
@@ -418,10 +358,11 @@ int main()
 			output(data);
 			std::cout << std::endl;
 			std::cout << "enter the number of bit pairs to be changed: ";
-			short changedData = reversepairs(data);
-			std::cout << std::endl << "binary: ";
-			output(changedData); std::cout << std::endl;
-			lab2(changedData);
+			short reversedBits = reversepairs(data);
+			std::cout << "\n\ndecimal: " << reversedBits << std::endl;
+			std::cout << "binary: ";
+			output(reversedBits); std::cout << std::endl << std::endl;
+			lab2(reversedBits);
 		}
 		if(menu == '2')
 		{
@@ -433,10 +374,12 @@ int main()
 			output(data.ldint);
 			std::cout << endl;
 			std::cout << "enter the number of bit pairs to be changed: ";
-			longdouble changedData = reversepairs(data);
-			std::cout << std::endl << "binary: ";
-			output(changedData.ldint); std::cout << std::endl;
-			lab2(changedData.ldint);
+			longdouble reversedBits;
+			reversedBits.ldint = reversepairs(data.ldint);
+			std::cout << "\n\ndecimal: " << reversedBits.ld << std::endl;
+			std::cout << "binary: ";
+			output(reversedBits.ldint); std::cout << std::endl << std::endl;
+			lab2(reversedBits.ldint);
 		}
 	}
 	while (menu != '0');
